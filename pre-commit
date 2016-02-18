@@ -43,3 +43,4 @@ if [ "$ERRORS_BUFFER" != "" ]; then
 else
     echo "No PHP parse errors found. Committed successfully."
 fi
+ASLJKFNASKJFN
