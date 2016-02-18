@@ -1,0 +1,233 @@
+#!/bin/bash 
+
+# make sudo go now
+export DEBIAN_FRONTEND=noninteractive
+
+IFS='%' # preserves whitespace
+cinematics=(
+    '  _________                    ________                               ________     _______   '
+    ' /   _____/__ _________   ____ \______ \   ____   ____   ____   ___  _\_____  \    \   _  \  '
+    ' \_____  \|  |  \_  __ \_/ __ \ |    |  \ /  _ \ /    \_/ __ \  \  \/ //  ____/    /  /_\  \ '
+    ' /        \  |  /|  | \/\  ___/ |    `   (  <_> )   |  \  ___/   \   //       \    \  \_/   \'
+    '/_______  /____/ |__|    \___  >_______  /\____/|___|  /\___  >   \_/ \_______ \ /\ \_____  /'
+    '        \/                   \/        \/            \/     \/                \/ \/       \/ '
+    '                                                                                VAGRANT SET UP'
+    ' '
+)
+#
+
+instructions=(
+    'Y'
+    'Yo'
+    'You'
+    'You '
+    'You w'
+    'You wi'
+    'You wil'
+    'You will'
+    'You will '
+    'You will n'
+    'You will ne'
+    'You will nee'
+    'You will need'
+    'You will need '
+    'You will need t'
+    'You will need to'
+    'You will need to '
+    'You will need to d'
+    'You will need to do'
+    'You will need to do '
+    'You will need to do s'
+    'You will need to do so'
+    'You will need to do som'
+    'You will need to do some'
+    'You will need to do some '
+    'You will need to do some s'
+    'You will need to do some st'
+    'You will need to do some stu'
+    'You will need to do some stuf'
+    'You will need to do some stuff'
+    'You will need to do some stuff.\n'
+    'P'
+    'Pa'
+    'Pay'
+    'Pay '
+    'Pay a'
+    'Pay at'
+    'Pay att'
+    'Pay atte'
+    'Pay atten'
+    'Pay attent'
+    'Pay attenti'
+    'Pay attentio'
+    'Pay attention'
+    'Pay attention.'
+)
+
+neo=(
+    'W'
+    'Wa'
+    'Wak'
+    'Wake'
+    'Wake u'
+    'Wake up'
+    'Wake up,'
+    'Wake up, '
+    'Wake up, n'
+    'Wake up, ne'
+    'Wake up, neo'
+    'Wake up, neo.'
+    'Wake up, neo..'
+    'Wake up, neo...'
+)
+
+echo '#--#--#--#--#--#--#--#--#--#--#--#--#--#'
+echo 'about to clear, build information will be kept in your history.'
+sleep 2s # create suspense
+clear
+## loop on array, cinematics
+for i in ${cinematics[@]}; do
+    echo  ${i}
+    sleep .2s
+done
+sleep .5s
+for i in ${instructions[@]}; do
+    echo  -ne ${i} '\r'
+    sleep .05s
+done
+echo -ne '\n'
+sleep 2s
+if [[ ! -f /vagrant/suredone/wwwui/index.php ]]; then
+    echo "SureDone library not installed. Please fix."
+    exit
+fi
+
+# missing provisions (v2)
+echo -ne '\n\nInstall Bower and LESS\n';
+sudo npm install -g bower
+sleep .5s
+sudo npm install -g less@2.1.2
+sleep .5s
+echo 'Update Composer';
+sudo composer self-update
+sleep .5s
+
+echo 'Moving index.php file to /var/www/';
+sudo chmod -R 777 /var/www/
+cp /vagrant/suredone/wwwui/index.php /var/www/
+sleep .5s
+echo 'Changing permission to 777 for /var/www/';
+sudo chmod -R 777 /var/www/ 
+sleep .5s
+echo "Sym linking css.";
+sudo ln -s /vagrant/suredone/www/css /var/www/css
+sleep .5s
+echo "Sym linking scripts.";
+sudo ln -s /vagrant/suredone/www/scripts /var/www/scripts
+sleep .5s
+echo "Sym linking app.";
+sudo ln -s /vagrant/suredone/www/app /var/www/app
+sleep .5s
+echo "Sym linking automation.";
+sudo ln -s /vagrant/suredone/www/automation /var/www/automation
+sleep .5s
+echo 'Changing the name of runonce.sh to break it.';
+mv /vagrant/runonce.sh /vagrant/runonce.sh.ran_already
+sleep .5s
+echo "Making suredone directory.";
+sudo mkdir /var/sdapp
+sudo chown -R www-data:www-data /var/sdapp
+sudo chmod -R 777 /var/sdapp
+sleep .5s
+echo "Sym linking suredone core";
+sudo ln -s /vagrant/suredone /var/sdapp/suredone
+sleep .5s
+echo "Bower Install";
+cd /vagrant/suredone && bower --allow-root install
+sleep .5s
+echo "Composer Install";
+cd /var/sdapp/suredone && sudo composer install
+sleep .5s
+echo "Creating sddbx.";
+sudo mkdir /var/sdapp/sddbx/
+sudo mkdir /var/sdapp/sddbx/sdusr
+sleep .5s
+echo "Sym linking sdinc.";
+sudo ln -s /vagrant/sdinc /var/sdapp/sddbx/sdinc
+sleep .5s
+echo "chown/chmod sdinc.";
+sudo chown -R www-data:www-data /var/sdapp/sddbx/sdinc
+sudo chmod -R 777 /var/sdapp/sddbx/sdinc 
+sleep .5s
+echo "chown/chmod sdusr.";
+sudo chown -R www-data:www-data /var/sdapp/sddbx/sdusr
+sudo chmod -R 777 /var/sdapp/sddbx/sdusr 
+mkdir /var/sdapp/sdusr
+sudo chown -R www-data:www-data /var/sdapp/sdusr
+sudo chmod -R 777 /var/sdapp/sdusr 
+sleep .5s
+echo "UA-Parser Setup.";
+cd /vagrant/sdinc/ua-parser/php/ && php UAParser.php -get
+sleep .5s
+echo "Setting sd-common.php.";
+sudo cp  /vagrant/suredone/config/sd-common.php.dev_example /vagrant/suredone/config/sd-common.php
+sleep .5s
+echo "Doing usermod stuff."
+sudo usermod -a -G vagrant www-data
+sudo usermod -a -G www-data vagrant
+sleep .5s
+echo "GIT filemode ignored."
+git config core.fileMode false
+sleep .5s
+echo "sed nginx.conf"
+sudo sed -i -- 's/\/etc\/apache2/\/var\/sdapp/' /etc/nginx/nginx.conf
+sudo /etc/init.d/nginx reload
+
+if [[ ! -f /vagrant/suredone/db/sddb.sql ]]; then
+    echo "sddb.sql seems to be missing or misplaced. Please fix."
+    exit
+fi
+
+{ mysql -u root -e<<EOSQL "DROP DATABASE IF EXISTS sddb;"
+EOSQL
+} 2>/dev/null
+
+{
+mysql -u root -e<<EOSQL "CREATE DATABASE sddb; USE sddb;ALTER DATABASE sddb COLLATE utf8_general_ci;"
+EOSQL
+} || {
+    echo 'Database (sddb) creation failed. Script stopped.'
+    exit
+}
+
+{
+mysql -u root -h localhost sddb < /vagrant/suredone/db/sddb.sql
+} || {
+    echo 'Error detected importing sql file.'
+    exit
+}
+
+{ mysql -u root -e<<EOSQL "DROP DATABASE IF EXISTS sddb_plugins;"
+EOSQL
+} 2>/dev/null
+
+sleep .5s
+echo 'Import completed.'
+
+echo 'Starting nginx...'
+sudo /etc/init.d/nginx start
+sleep .5s
+
+echo 'Set Timezone...'
+sudo dpkg-reconfigure tzdata
+sleep .5s
+
+echo "It looks like everything worked correctly."
+sleep 4s
+clear
+sleep 2s
+for i in ${neo[@]}; do
+    echo  -ne ${i} '\r'
+    sleep .2s
+done
+sleep 3s
